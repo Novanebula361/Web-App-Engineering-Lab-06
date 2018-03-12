@@ -9,26 +9,34 @@ using MvcMovie.Models;
 
 namespace MvcMovie.Controllers
 {
-    public class MoviesController : Controller
+    public class ReviewsController : Controller
     {
         private readonly MvcMovieContext _context;
 
-        public MoviesController(MvcMovieContext context)
+        public ReviewsController(MvcMovieContext context)
         {
             _context = context;
         }
 
-        // GET: Movies
-        // Requires using Microsoft.AspNetCore.Mvc.Rendering;
+        // GET: Reviews
         public async Task<IActionResult> Index(string movieGenre, string searchString)
         {
             // Use LINQ to get list of genres.
-            IQueryable<string> genreQuery = from m in _context.Movie
-                                            orderby m.Genre
-                                            select m.Genre;
+            IQueryable<string> reviewerNameQuery = from r in _context.Review
+                                           orderby r.Name
+                                           select r.Name;
+
+            /*
+            IQueryable<string> movieNameQuery = from m in _context.Movie
+                                                orderby m.Title
+                                                select m.Title;
+            */
 
             var movies = from m in _context.Movie
                          select m;
+
+            var reviews = from r in _context.Review
+                          select r;
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -40,14 +48,15 @@ namespace MvcMovie.Controllers
                 movies = movies.Where(x => x.Genre == movieGenre);
             }
 
-            var movieGenreVM = new MovieGenreViewModel();
-            movieGenreVM.genres = new SelectList(await genreQuery.Distinct().ToListAsync());
-            movieGenreVM.movies = await movies.ToListAsync();
+            var reviewMovieAndReviewerVM = new ReviewMovieAndReviewerViewModel();
+            reviewMovieAndReviewerVM.reviewerNames = new SelectList(await reviewerNameQuery.Distinct().ToListAsync());
+            reviewMovieAndReviewerVM.movies = await movies.ToListAsync();
+            reviewMovieAndReviewerVM.reviews = await reviews.ToListAsync();
 
-            return View(movieGenreVM);
+            return View(reviewMovieAndReviewerVM);
         }
 
-        // GET: Movies/Details/5
+        // GET: Reviews/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -55,50 +64,51 @@ namespace MvcMovie.Controllers
                 return NotFound();
             }
 
-            var movie = await _context.Movie
+            var review = await _context.Review
                 .SingleOrDefaultAsync(m => m.ID == id);
-            if (movie == null)
+            if (review == null)
             {
                 return NotFound();
             }
 
-            var reviews = from r in _context.Review
-                          where r.MovieID == movie.ID
-                          select r;
-
-            var movieAndReviews = new MovieAndReviews();
-            movieAndReviews.movie = movie;
-            if (reviews != null)
-                movieAndReviews.reviews = await reviews.ToListAsync<Review>();
-            else
-                movieAndReviews.reviews = null;
-
-            return View(movieAndReviews);
+            return View(review);
         }
 
-        // GET: Movies/Create
-        public IActionResult Create()
+        // GET: Reviews/Create
+        public IActionResult Create(int? id)
         {
+            ViewData["MovieID"] = id;
+            var movie = from m in _context.Movie
+                        where m.ID == id
+                        select m;
+            ViewData["MovieName"] = movie.First<Movie>().Title;
             return View();
         }
 
-        // POST: Movies/Create
+        // POST: Reviews/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+        public async Task<IActionResult> Create([Bind("MovieID,Name,Comment")] Review review)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(movie);
+                _context.Add(review);
+                /*
+                var movie = from m in _context.Movie
+                            where m.ID == review.MovieID
+                            select m;
+                review.Movie = movie.First<Movie>();
+                */
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(movie);
+
+            return View(review);
         }
 
-        // GET: Movies/Edit/5
+        // GET: Reviews/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -106,22 +116,22 @@ namespace MvcMovie.Controllers
                 return NotFound();
             }
 
-            var movie = await _context.Movie.SingleOrDefaultAsync(m => m.ID == id);
-            if (movie == null)
+            var review = await _context.Review.SingleOrDefaultAsync(m => m.ID == id);
+            if (review == null)
             {
                 return NotFound();
             }
-            return View(movie);
+            return View(review);
         }
 
-        // POST: Movies/Edit/5
+        // POST: Reviews/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,MovieID,Name,Comment")] Review review)
         {
-            if (id != movie.ID)
+            if (id != review.ID)
             {
                 return NotFound();
             }
@@ -130,12 +140,12 @@ namespace MvcMovie.Controllers
             {
                 try
                 {
-                    _context.Update(movie);
+                    _context.Update(review);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MovieExists(movie.ID))
+                    if (!ReviewExists(review.ID))
                     {
                         return NotFound();
                     }
@@ -146,10 +156,10 @@ namespace MvcMovie.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(movie);
+            return View(review);
         }
 
-        // GET: Movies/Delete/5
+        // GET: Reviews/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -157,30 +167,30 @@ namespace MvcMovie.Controllers
                 return NotFound();
             }
 
-            var movie = await _context.Movie
+            var review = await _context.Review
                 .SingleOrDefaultAsync(m => m.ID == id);
-            if (movie == null)
+            if (review == null)
             {
                 return NotFound();
             }
 
-            return View(movie);
+            return View(review);
         }
 
-        // POST: Movies/Delete/5
+        // POST: Reviews/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var movie = await _context.Movie.SingleOrDefaultAsync(m => m.ID == id);
-            _context.Movie.Remove(movie);
+            var review = await _context.Review.SingleOrDefaultAsync(m => m.ID == id);
+            _context.Review.Remove(review);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MovieExists(int id)
+        private bool ReviewExists(int id)
         {
-            return _context.Movie.Any(e => e.ID == id);
+            return _context.Review.Any(e => e.ID == id);
         }
     }
 }

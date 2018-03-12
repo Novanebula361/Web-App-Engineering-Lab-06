@@ -11,9 +11,10 @@ using System;
 namespace MvcMovie.Migrations
 {
     [DbContext(typeof(MvcMovieContext))]
-    partial class MvcMovieContextModelSnapshot : ModelSnapshot
+    [Migration("20180309011216_reviews")]
+    partial class reviews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,32 +49,22 @@ namespace MvcMovie.Migrations
 
             modelBuilder.Entity("MvcMovie.Models.Review", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasMaxLength(400);
+                    b.Property<int>("movieID");
 
-                    b.Property<int>("MovieID");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(50);
 
-                    b.HasKey("ID");
+                    b.Property<string>("review")
+                        .IsRequired()
+                        .HasMaxLength(400);
 
-                    b.HasIndex("MovieID");
+                    b.HasKey("id");
 
                     b.ToTable("Review");
-                });
-
-            modelBuilder.Entity("MvcMovie.Models.Review", b =>
-                {
-                    b.HasOne("MvcMovie.Models.Movie", "Movie")
-                        .WithMany()
-                        .HasForeignKey("MovieID")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

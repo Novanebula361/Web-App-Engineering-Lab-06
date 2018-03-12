@@ -11,7 +11,7 @@ namespace MvcMovie.Models
         public string Title { get; set; }
 
         [Display(Name = "Release Date"), DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:MMM dd, yyyy}", ApplyFormatInEditMode = true)]
+        [DisplayFormat(DataFormatString = "{0:MMM dd, yyyy}")]
         public DateTime ReleaseDate { get; set; }
 
         [Required, StringLength(30)]

@@ -1,48 +1,64 @@
-﻿@model MvcMovie.Models.Movie
+﻿@model MvcMovie.Models.MovieAndReviews
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
+<h2>Details for <em>@Model.movie.Title</em></h2>
 
 <div>
-    <h4>Movie</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Title)
+            @Html.DisplayNameFor(model => model.movie.Title)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Title)
+            @Html.DisplayFor(model => model.movie.Title)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.ReleaseDate)
+            @Html.DisplayNameFor(model => model.movie.ReleaseDate)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.ReleaseDate)
+            @Html.DisplayFor(model => model.movie.ReleaseDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Genre)
+            @Html.DisplayNameFor(model => model.movie.Genre)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Genre)
+            @Html.DisplayFor(model => model.movie.Genre)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Price)
+            @Html.DisplayNameFor(model => model.movie.Price)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Price)
+            @Html.DisplayFor(model => model.movie.Price)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Rating)
+            @Html.DisplayNameFor(model => model.movie.Rating)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Rating)
+            @Html.DisplayFor(model => model.movie.Rating)
         </dd>
     </dl>
 </div>
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-default">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.movie.ID" class="btn btn-default">Edit</a> |
     <a asp-action="Index" class="btn btn-default">Back to List</a>
+</div>
+<div class="table-bordered">
+    @if (Model.reviews != null)
+    {
+        <h3>Reviews</h3>
+        foreach (Review r in Model.reviews)
+        {
+            <div class="table-bordered">
+                @r.Comment<br />
+                <strong><em>- @r.Name</em></strong>
+            </div>
+        }
+    }
+</div>
+<div>
+    <a asp-action="Create" asp-controller="Reviews" asp-route-id="@Model.movie.ID" class="btn btn-default">Write a Review</a>
 </div>
