@@ -46,15 +46,21 @@
     <a asp-action="Edit" asp-route-id="@Model.movie.ID" class="btn btn-default">Edit</a> |
     <a asp-action="Index" class="btn btn-default">Back to List</a>
 </div>
-<div class="table-bordered">
+<div class="">
     @if (Model.reviews != null)
     {
         <h3>Reviews</h3>
         foreach (Review r in Model.reviews)
         {
-            <div class="table-bordered">
-                @r.Comment<br />
-                <strong><em>- @r.Name</em></strong>
+            <div class="row table-bordered">
+                <div class="col-lg-10">
+                    @r.Comment<br />
+                    <strong><em>- @r.Name</em></strong>
+                </div>
+                <div class="col-lg-2">
+                    <a asp-action="Edit" asp-controller="Reviews" asp-route-id="@r.ID" class="btn btn-default">Edit</a>
+                    <a asp-action="Delete" asp-controller="Reviews" asp-route-id="@r.ID" class="btn btn-default">Delete</a>
+                </div>
             </div>
         }
     }

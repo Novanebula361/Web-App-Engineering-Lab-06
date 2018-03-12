@@ -121,6 +121,12 @@ namespace MvcMovie.Controllers
             {
                 return NotFound();
             }
+
+            var movie = from m in _context.Movie
+                        where m.ID == id
+                        select m;
+            ViewData["MovieName"] = movie.First<Movie>().Title;
+
             return View(review);
         }
 
